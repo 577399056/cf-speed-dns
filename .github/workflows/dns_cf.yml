@@ -1,9 +1,10 @@
 name: 'dns_cf_push'
 
+
 on:
   schedule:
     - cron: '0 */6 * * *'
-
+    
 jobs:
   build:
     runs-on: ubuntu-latest
