@@ -5,12 +5,12 @@ import os
 import json
 
 # API 密钥
-CF_API_TOKEN    =   os.environ["CF_API_TOKEN"]
-CF_ZONE_ID      =   os.environ["CF_ZONE_ID"]
-CF_DNS_NAME     =   os.environ["CF_DNS_NAME"]
+CF_API_TOKEN    =   str(os.environ["CF_API_TOKEN"])
+CF_ZONE_ID      =   str(os.environ["CF_ZONE_ID"])
+CF_DNS_NAME     =   str(os.environ["CF_DNS_NAME"])
 
 # pushplus_token
-PUSHPLUS_TOKEN  =   os.environ["PUSHPLUS_TOKEN"]
+PUSHPLUS_TOKEN  =   str(os.environ["PUSHPLUS_TOKEN"])
 
 
 
@@ -34,35 +34,48 @@ def get_cf_speed_test_ip(timeout=10, max_retries=5):
     return None
 
 # 获取 DNS 记录
-def get_dns_records(name):
-    def_info = []
+def get_dns_records(name,ip_list):
+    ip_list = ip_list
     url = f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE_ID}/dns_records'
     response = requests.get(url, headers=headers)
+    #print("response：",str(response.json()))
     if response.status_code == 200:
         records = response.json()['result']
         for record in records:
             if record['name'] == name:
-                def_info.append(record['id'])
-        return def_info
+                if record['content'] in ip_list:
+                    ip_list.remove(record['content'])
+                else:
+                    delete_url = "{}/{}".format(url, record['id'])
+                    delete_response = requests.delete(delete_url,headers=headers)
+                    if delete_response.json()["success"]:
+                        print("成功删除 DNS 记录", record["name"],record['content'])
+                    else:
+                        print("删除 DNS 记录失败")
+        return ip_list
     else:
         print('Error fetching DNS records:', response.text)
 
 # 更新 DNS 记录
-def update_dns_record(record_id, name, cf_ip):
-    url = f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE_ID}/dns_records/{record_id}'
+def update_dns_record(name, cf_ip):
+    url = f'https://api.cloudflare.com/client/v4/zones/{CF_ZONE_ID}/dns_records'
+    print("要更新cf的ip：",cf_ip)
     data = {
-        'type': 'A',
-        'name': name,
-        'content': cf_ip
+        "type": 'A',
+        "name": str(name),
+        "content": cf_ip,
+        #"ttl": None,
+        "proxied": False,
     }
 
-    response = requests.put(url, headers=headers, json=data)
-
+    response = requests.post(url, headers=headers, json=data)
+    #print(8888889,response.json())
     if response.status_code == 200:
         print(f"cf_dns_change success: ---- Time: " + str(
             time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + " ---- ip：" + str(cf_ip))
         return "ip:" + str(cf_ip) + "解析" + str(name) + "成功"
     else:
+        e = ""
         traceback.print_exc()
         print(f"cf_dns_change ERROR: ---- Time: " + str(
             time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())) + " ---- MESSAGE: " + str(e))
@@ -86,13 +99,18 @@ def push_plus(content):
 def main():
     # 获取最新优选IP
     ip_addresses_str = get_cf_speed_test_ip()
+    #print("ip_addresses_str：",str(ip_addresses_str))
     ip_addresses = ip_addresses_str.split(',')
-    dns_records = get_dns_records(CF_DNS_NAME)
+    print("获取到的优选ip列表：",str(ip_addresses))
+    ip_list = get_dns_records(CF_DNS_NAME,ip_addresses)
+    print("要更新的ip(并排除云端重复ip)：",str(ip_list))
     push_plus_content = []
+    if not ip_list:
+      return
     # 遍历 IP 地址列表
     for index, ip_address in enumerate(ip_addresses):
         # 执行 DNS 变更
-        dns = update_dns_record(dns_records[index], CF_DNS_NAME, ip_address)
+        dns = update_dns_record(CF_DNS_NAME, ip_address)
         push_plus_content.append(dns)
 
     push_plus('\n'.join(push_plus_content))
