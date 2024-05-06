@@ -3,6 +3,7 @@ import traceback
 import time
 import os
 import json
+#import re
 
 # API 密钥
 CF_API_TOKEN    =   str(os.environ["CF_API_TOKEN"])
@@ -24,16 +25,16 @@ def get_cf_speed_test_ip(timeout=10, max_retries=5):
         try:
             # 发送 GET 请求，设置超时
             response = requests.get('https://ip.164746.xyz/ipTop.html', timeout=timeout)
-            response2 = requests.get('https://577399056.github.io/cf-speed-dns/', timeout=timeout)
+            # response2 = requests.get('https://577399056.github.io/cf-speed-dns/', timeout=timeout)
             #print("response2：",str(response2.text))
             # 获取网页内容
-            html_content = response2.text
+            # html_content = response2.text
 
             # 匹配 IPv4 地址
-            ip_addresses = re.findall(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", html_content)
+            # ip_addresses = re.findall(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", html_content)
 
             # 去重 IP 地址
-            unique_ip_addresses = set(ip_addresses)
+            # unique_ip_addresses = set(ip_addresses)
             
             # 打印去重后的 IP 地址
             #print("最终ip:",list(unique_ip_addresses))
