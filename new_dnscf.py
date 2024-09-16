@@ -3,7 +3,7 @@ import traceback
 import time
 import os
 import json
-#import re
+import re
 
 # API 密钥
 CF_API_TOKEN    =   str(os.environ["CF_API_TOKEN"])
@@ -135,7 +135,8 @@ def main():
     # 获取最新优选IP
     ip_addresses_str = get_cf_speed_test_ip()
     #print("ip_addresses_str：",str(ip_addresses_str))
-    ip_addresses = ip_addresses_str.split(',')
+    # ip_addresses = ip_addresses_str.split(',')
+    ip_addresses = ip_addresses_str
     print("获取到的优选ip列表：",str(ip_addresses))
     ip_list,del_ip_list,records = get_dns_records(CF_DNS_NAME,ip_addresses)
     print("要更新的ip(并排除云端重复ip)：",str(ip_list))
