@@ -39,6 +39,12 @@ def get_cf_speed_test_ip(timeout=10, max_retries=5):
             # 打印去重后的 IP 地址
             print("最终ip:",ip_list[:3])
             
+            if response2.status_code == 200:
+                return ip_list[:3]
+        except Exception as e:
+            traceback.print_exc()
+            print(f"get_cf_speed_test_ip Request failed (attempt {attempt + 1}/{max_retries}): {e}")
+            
             # 检查响应状态码
             # if response.status_code == 200:
                 # return response.text
