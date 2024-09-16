@@ -24,27 +24,27 @@ def get_cf_speed_test_ip(timeout=10, max_retries=5):
     for attempt in range(max_retries):
         try:
             # 发送 GET 请求，设置超时
-            response = requests.get('https://ip.164746.xyz/ipTop.html', timeout=timeout)
-            # response2 = requests.get('https://577399056.github.io/cf-speed-dns/', timeout=timeout)
-            #print("response2：",str(response2.text))
+            #response = requests.get('https://ip.164746.xyz/ipTop.html', timeout=timeout)
+            response2 = requests.get('https://cf.090227.xyz/', timeout=timeout)
+            print("response2：",str(response2.text))
             # 获取网页内容
-            # html_content = response2.text
+            html_content = response2.text
 
             # 匹配 IPv4 地址
-            # ip_addresses = re.findall(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", html_content)
+            ip_addresses = re.findall(r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", html_content)
 
             # 去重 IP 地址
-            # unique_ip_addresses = set(ip_addresses)
-            
+            unique_ip_addresses = set(ip_addresses)
+            ip_list = list(unique_ip_addresses)
             # 打印去重后的 IP 地址
-            #print("最终ip:",list(unique_ip_addresses))
+            print("最终ip:",ip_list[:3])
             
             # 检查响应状态码
-            if response.status_code == 200:
-                return response.text
-        except Exception as e:
-            traceback.print_exc()
-            print(f"get_cf_speed_test_ip Request failed (attempt {attempt + 1}/{max_retries}): {e}")
+            # if response.status_code == 200:
+                # return response.text
+        # except Exception as e:
+            # traceback.print_exc()
+            # print(f"get_cf_speed_test_ip Request failed (attempt {attempt + 1}/{max_retries}): {e}")
     # 如果所有尝试都失败，返回 None 或者抛出异常，根据需要进行处理
     return None
 
