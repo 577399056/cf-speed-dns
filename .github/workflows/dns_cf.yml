@@ -3,6 +3,9 @@ name: 'dns_cf_push'
 on:
   schedule:
     - cron: '0 */6 * * *'
+    
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:  
 
 jobs:
   build:
